@@ -74,7 +74,12 @@ contract EtherLottery {
     * @notice Get the winner's address.
     * @return winner's address
     */
-    function getWinner() external view returns(address){}
+    function getWinner() external view returns(address){
+        if(!ended) {
+            revert LotteryNotYetEnded();
+        }
+        return winner;
+    }
 
     /**
     * @notice Get the current account's number of tickets.

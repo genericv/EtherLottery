@@ -92,7 +92,28 @@ contract EtherLottery {
     * @notice Buy lottery tickets.
     * @dev purchased tokens number is equal to sent ether value
     */
-    function buyTickets() external payable {}
+    function buyTickets() external payable {
+        // Revert if the ticket buying period is over.
+        if (block.timestamp > endTime){
+            revert LotteryAlreadyEnded();
+        }
+        // Revert if player sent zero ether.
+        if (msg.value <= 0) {
+            revert NoEtherSent();
+        }
+        // Revert if player sent more ether
+        // than there are available tickets.
+        if (address(this).balance > ticketSupply) {
+            uint tokensLeft = ticketSupply - (address(this).balance - msg.value);
+            revert SentTooMuch(tokensLeft);
+        }
+        // Add new player to the list.
+        if (balances[msg.sender] == 0){
+            players.push(msg.sender);
+        }
+        // Increase buyer's ticket balance.
+        balances[msg.sender] += msg.value;
+    }
 
     /**
     * @notice End the lottery when time is up or all the tickets are bought.

@@ -63,7 +63,12 @@ contract EtherLottery {
     * @notice Calculate winner's and beneficiary's rewards.
     * @return two reward values as a tuple: (forWinner, forBeneficiary)
     */
-    function getRewards() public view returns(uint, uint){}
+    function getRewards() public view returns(uint, uint){
+        uint totalReward = address(this).balance;
+        uint forWinner = totalReward / 10 * 9;
+        uint forBeneficiary = totalReward - forWinner;
+        return (forWinner, forBeneficiary);
+    }
 
     /**
     * @notice Get the winner's address.

@@ -76,7 +76,9 @@ contract EtherLottery {
     * @return current sender's ticket amount
     * @dev will return 0 even if the sender is not in the players list
     */
-    function getTicketAmount() external view returns(uint){}
+    function getTicketAmount() external view returns(uint){
+        return balances[msg.sender];
+    }
 
     /**
     * @notice Determine the winner.

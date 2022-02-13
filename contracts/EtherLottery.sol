@@ -49,9 +49,9 @@ contract EtherLottery {
     /** 
     * @notice Create new lottery.
     * @param _ticketSupply total ticket supply
-    * @param _endTime time of the lottery end
+    * @param _duration time period in seconds
     */
-    constructor(uint _ticketSupply, uint _endTime) {}
+    constructor(uint _ticketSupply, uint _duration) {}
 
     /**
     * @notice Calculate winner's and beneficiary's rewards.

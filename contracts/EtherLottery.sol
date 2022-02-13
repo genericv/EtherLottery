@@ -47,11 +47,17 @@ contract EtherLottery {
     error LotteryEndAlreadyCalled();
 
     /** 
-    * @notice Create new lottery.
+    * @notice Create new lottery with provided parameters.
     * @param _ticketSupply total ticket supply
     * @param _duration time period in seconds
+    * @dev sets beneficiary to the current sender (deployer)
+    * @dev set end time to the sum of the current time and the duration
     */
-    constructor(uint _ticketSupply, uint _duration) {}
+    constructor(uint _ticketSupply, uint _duration) {
+        beneficiary = payable(msg.sender);
+        ticketSupply = _ticketSupply;
+        endTime = block.timestamp + _duration;
+    }
 
     /**
     * @notice Calculate winner's and beneficiary's rewards.

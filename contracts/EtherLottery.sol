@@ -95,8 +95,19 @@ contract EtherLottery {
     * @dev select the winner by determining a winning ticket
     * @dev random number is generated using keccak256
     * @dev keccak256 applies to timestamp and sender's address
+    * @dev stores winner's address in state variable
     */
-    function determineWinner() internal{}
+    function determineWinner() internal{
+        uint reward = address(this).balance;
+        uint winningNumber = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % reward + 1;
+        for (uint i = 0; i < players.length; i++){
+            if (balances[players[i]] >= winningNumber){
+                winner = payable(players[i]);
+                break;
+            }
+            winningNumber -= balances[players[i]];
+        }
+    }
 
     /**
     * @notice Buy lottery tickets.

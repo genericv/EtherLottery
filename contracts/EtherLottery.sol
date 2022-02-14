@@ -140,6 +140,24 @@ contract EtherLottery {
     * @notice End the lottery when time is up or all the tickets are bought.
     * @dev send rewards to winner and beneficiary
     */
-    function endLottery() external {}
+    function endLottery() external {
+        // Conditions
+        if (ended){
+            revert LotteryEndAlreadyCalled();
+        }
+        if (address(this).balance < ticketSupply && block.timestamp < endTime){
+            revert LotteryNotYetEnded();
+        }
+
+        // Effects
+        ended = true;
+        determineWinner();
+        (uint playerReward, uint beneficiaryReward) = getRewards();
+        emit LotteryEnded(winner, playerReward);
+
+        // Interaction
+        winner.transfer(playerReward);
+        beneficiary.transfer(beneficiaryReward);
+    }
 
 }

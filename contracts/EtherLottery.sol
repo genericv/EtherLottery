@@ -43,7 +43,7 @@ contract EtherLottery {
     error SentTooMuch(uint availableAmount);
     /// The lottery has not ended yet.
     error LotteryNotYetEnded();
-    /// The function lotteryEnd has already been called.
+    /// The function endLottery has already been called.
     error LotteryEndAlreadyCalled();
 
     /** 
@@ -140,6 +140,6 @@ contract EtherLottery {
     * @notice End the lottery when time is up or all the tickets are bought.
     * @dev send rewards to winner and beneficiary
     */
-    function lotteryEnd() external {}
+    function endLottery() external {}
 
 }

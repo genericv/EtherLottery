@@ -44,7 +44,7 @@ describe("Lottery contract", function () {
 
     describe("Buying tickets", function () {
         it("Should increase player's ticket balance by the amount of ether sent", async function () {
-            const requestedTickets = ethers.utils.parseEther("1")
+            const requestedTickets = ethers.utils.parseEther("1");
             await hardhatLottery.connect(addr1).buyTickets({value: requestedTickets});
             const playerTickets = await hardhatLottery.connect(addr1).getTicketAmount();
             const lotteryEthBalance =  await provider.getBalance(hardhatLottery.address);
@@ -55,7 +55,7 @@ describe("Lottery contract", function () {
         });
 
         it("Should update player's ticket balance if the player buys more tickets", async function () {
-            const requestedTickets = ethers.utils.parseEther("1")
+            const requestedTickets = ethers.utils.parseEther("1");
             await hardhatLottery.connect(addr1).buyTickets({value: requestedTickets});
             const initialPlayerTickets = await hardhatLottery.connect(addr1).getTicketAmount();
             // The requested amount of tickets and the player's current ticket amount should match.
@@ -93,7 +93,7 @@ describe("Lottery contract", function () {
 
         it("Should fail if a player tries to buy tickets after the ticket buying period is over", async function () {
             //Fast forward to the end of the ticket buying period.
-            await network.provider.send("evm_increaseTime", [duration + 1])
+            await network.provider.send("evm_increaseTime", [duration + 1]);
             await expect(hardhatLottery.connect(addr1).buyTickets({value: ethers.utils.parseEther("1")}))
             .to.be.revertedWith("LotteryAlreadyEnded");
         });
@@ -128,9 +128,9 @@ describe("Lottery contract", function () {
             const finalBenificiaryBalance = await provider.getBalance(beneficiary.address);
             const lotteryEthBalance =  await provider.getBalance(hardhatLottery.address);
             // Winner's ethereum balance shoud be above his initial balance.
-            expect(finalWinnerBalance).to.be.above(initialWinnerBalance)
+            expect(finalWinnerBalance).to.be.above(initialWinnerBalance);
             // Beneficiary's ethereum balance shoud be above his initial balance.
-            expect(finalBenificiaryBalance).to.be.above(initialBeneficiaryBalance)
+            expect(finalBenificiaryBalance).to.be.above(initialBeneficiaryBalance);
             // The contract balance should be equal to zero.
             expect(lotteryEthBalance).to.equal(0);
         });
@@ -146,7 +146,7 @@ describe("Lottery contract", function () {
             const halfOfTotalTicketAmount = ethers.utils.parseEther(Math.floor(+ethTicketSupply / 2) + "");
             await hardhatLottery.connect(addr1).buyTickets({value: halfOfTotalTicketAmount});
             //Fast forward to the end of the ticket buying period.
-            await network.provider.send("evm_increaseTime", [duration + 1])
+            await network.provider.send("evm_increaseTime", [duration + 1]);
             // Only a half of the total ticket amount has been bought,
             // but the ticket buying period has ended.
             await expect(hardhatLottery.endLottery()).to.not.be.reverted;

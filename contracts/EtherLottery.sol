@@ -114,8 +114,9 @@ contract EtherLottery {
     * @dev purchased tokens number is equal to sent ether value
     */
     function buyTickets() external payable {
-        // Revert if the ticket buying period is over.
-        if (block.timestamp > endTime){
+        // Revert if the lottery has already ended
+        // or if the ticket buying period is over.
+        if (ended || block.timestamp > endTime){
             revert LotteryAlreadyEnded();
         }
         // Revert if player sent zero ether.

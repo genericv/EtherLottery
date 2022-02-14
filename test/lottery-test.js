@@ -7,7 +7,7 @@ describe("Lottery contract", function () {
     let Lottery;
     let hardhatLottery;
     let beneficiary;
-    let ticketSupply;
+    let ethTicketSupply;
     let duration;
     let deploymentTime;
     let addr1;
@@ -15,11 +15,13 @@ describe("Lottery contract", function () {
     let addrs;
 
     beforeEach(async function () {
-        ticketSupply = ethers.utils.parseEther("1000");
+        ethTicketSupply = "1000";
         duration = 3600;
         Lottery = await ethers.getContractFactory("EtherLottery");
         [beneficiary, addr1, addr2, ...addrs] = await ethers.getSigners();
-        hardhatLottery = await Lottery.deploy(ticketSupply, duration);
+        hardhatLottery = await Lottery.deploy(
+            ethers.utils.parseEther(ethTicketSupply),
+            duration);
         const blockNumBefore = await provider.getBlockNumber();
         const blockBefore = await provider.getBlock(blockNumBefore);
         deploymentTime = blockBefore.timestamp;
@@ -31,7 +33,8 @@ describe("Lottery contract", function () {
         });
 
         it("Should set the right ticket supply", async function () {
-            expect(await hardhatLottery.ticketSupply()).to.equal(ticketSupply);
+            expect(await hardhatLottery.ticketSupply()).to.equal(
+                ethers.utils.parseEther(ethTicketSupply));
         });
 
         it("Should set the right end time", async function () {
@@ -73,13 +76,13 @@ describe("Lottery contract", function () {
         });
 
         it("Should fail  if a player tries to buy more tickets than currently available", async function () {
-            const exceedingAmount = ethers.utils.parseEther(ethers.utils.formatEther(ticketSupply) + 1 + "");
+            const exceedingAmount = ethers.utils.parseEther((+ethTicketSupply + 1) + "");
             await expect(hardhatLottery.connect(addr1).buyTickets({value: exceedingAmount}))
-            .to.be.revertedWith(`SentTooMuch(${ticketSupply})`);
+            .to.be.revertedWith(`SentTooMuch(${ethers.utils.parseEther(ethTicketSupply)})`);
         });
 
         it("Should fail if a player tries to buy tickets after the lottery has ended", async function () {
-            const halfOfTotalTicketAmount = Math.floor(+ticketSupply / 2) + "";
+            const halfOfTotalTicketAmount = ethers.utils.parseEther(Math.floor(+ethTicketSupply / 2) + "");
             //Two players buy all of the tickets (each gets a half of the total amount).
             await hardhatLottery.connect(addr1).buyTickets({value: halfOfTotalTicketAmount});
             await hardhatLottery.connect(addr2).buyTickets({value: halfOfTotalTicketAmount});

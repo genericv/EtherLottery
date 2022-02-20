@@ -65,9 +65,9 @@ describe("Lottery contract", function () {
             const finalPlayerTickets = await hardhatLottery.connect(addr1).getTicketAmount();
             const lotteryEthBalance =  await provider.getBalance(hardhatLottery.address);
             // Player's current ticket amount should have been updated.
-            expect(finalPlayerTickets).to.equal(ethers.utils.parseEther("2"));
+            expect(finalPlayerTickets).to.equal(requestedTickets.mul(2));
             // The contract balance should have been increased by the amount of requested tickets.
-            expect(lotteryEthBalance).to.equal(ethers.utils.parseEther("2"));
+            expect(lotteryEthBalance).to.equal(requestedTickets.mul(2));
         });
 
         it("Should fail if a player tries to buy zero tickets", async function () {

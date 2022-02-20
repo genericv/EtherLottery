@@ -52,6 +52,11 @@ describe("Lottery contract", function () {
             expect(playerTickets).to.equal(requestedTickets);
             // The contract balance should have been increased by the amount of requested tickets.
             expect(lotteryEthBalance).to.equal(requestedTickets);
+
+            const ticketsLeft = await hardhatLottery.ticketPool();
+            const expectedTicketsLeft = (ethers.utils.parseEther(ethTicketSupply) - requestedTickets) + "";
+            // The ticket pool should have been decreased by the amount of requested tickets.
+            expect(ticketsLeft).to.equal(expectedTicketsLeft);
         });
 
         it("Should update player's ticket balance if the player buys more tickets", async function () {
@@ -68,6 +73,11 @@ describe("Lottery contract", function () {
             expect(finalPlayerTickets).to.equal(requestedTickets.mul(2));
             // The contract balance should have been increased by the amount of requested tickets.
             expect(lotteryEthBalance).to.equal(requestedTickets.mul(2));
+
+            const ticketsLeft = await hardhatLottery.ticketPool();
+            const expectedTicketsLeft = (ethers.utils.parseEther(ethTicketSupply) - requestedTickets * 2) + "";
+            // The ticket pool should have been decreased by the amount of requested tickets.
+            expect(ticketsLeft).to.equal(expectedTicketsLeft);
         });
 
         it("Should fail if a player tries to buy zero tickets", async function () {

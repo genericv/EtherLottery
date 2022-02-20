@@ -20,6 +20,11 @@ contract EtherLottery {
     // Set by deployer.
     uint public ticketSupply;
 
+    // Amount of remaining available tickets.
+    // Initialy set to the total ticket supply.
+    // Decreased by the number of sold tickets.
+    uint public ticketPool;
+
     // Time when the lottery ends.
     // Set by deployer.
     uint public endTime;
@@ -56,6 +61,7 @@ contract EtherLottery {
     constructor(uint _ticketSupply, uint _duration) {
         beneficiary = payable(msg.sender);
         ticketSupply = _ticketSupply;
+        ticketPool = _ticketSupply;
         endTime = block.timestamp + _duration;
     }
 
@@ -98,8 +104,7 @@ contract EtherLottery {
     * @dev stores winner's address in state variable
     */
     function determineWinner() internal{
-        uint reward = address(this).balance;
-        uint winningNumber = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % reward + 1;
+        uint winningNumber = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % ticketSupply + 1;
         for (uint i = 0; i < players.length; i++){
             if (balances[players[i]] >= winningNumber){
                 winner = payable(players[i]);
@@ -125,9 +130,8 @@ contract EtherLottery {
         }
         // Revert if player sent more ether
         // than there are available tickets.
-        if (address(this).balance > ticketSupply) {
-            uint tokensLeft = ticketSupply - (address(this).balance - msg.value);
-            revert SentTooMuch(tokensLeft);
+        if (ticketPool < msg.value) {
+            revert SentTooMuch(ticketPool);
         }
         // Add new player to the list.
         if (balances[msg.sender] == 0){
@@ -135,6 +139,7 @@ contract EtherLottery {
         }
         // Increase buyer's ticket balance.
         balances[msg.sender] += msg.value;
+        ticketPool -= msg.value;
     }
 
     /**
@@ -146,7 +151,7 @@ contract EtherLottery {
         if (ended){
             revert LotteryEndAlreadyCalled();
         }
-        if (address(this).balance < ticketSupply && block.timestamp < endTime){
+        if (ticketPool > 0 && block.timestamp < endTime){
             revert LotteryNotYetEnded();
         }
 

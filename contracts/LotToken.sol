@@ -26,6 +26,7 @@ contract LotToken is ERC20 {
     * @return true if transaction was successful
     */
     function transfer(address recipient, uint256 amount) public override returns (bool) {
+        require(amount > 0, "Can not transfer zero tokens");
         require(balanceOf(msg.sender) >= amount, "Not enough tokens");
         _transfer(_msgSender(), recipient, amount);
         return true;

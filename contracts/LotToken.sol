@@ -8,13 +8,6 @@ contract LotToken is ERC20 {
     // Owner account address.
     address public owner;
 
-    // Modified function can be only performed
-    // by the owner.
-    modifier OnlyOwner(){
-        require(msg.sender == owner, "Account must be the owner");
-        _;
-    }
-
     /** 
     * @notice Create LotTokens.
     * @param _initialSupply initial token supply to be minted

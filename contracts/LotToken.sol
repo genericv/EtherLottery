@@ -14,7 +14,7 @@ contract LotToken is ERC20 {
     * @dev sets owner to the current sender (deployer)
     * @dev mints initial token supply and assigns it to the owner
     */
-    constructor(uint _initialSupply) payable ERC20("LotToken", "LTT"){
+    constructor(uint _initialSupply) ERC20("LotToken", "LTT"){
         _mint(msg.sender, _initialSupply);
         owner = msg.sender;
     }

@@ -33,4 +33,25 @@ describe("ERC20 compatibility", function () {
         deploymentTime = blockBefore.timestamp;
     });
 
+    describe("Buying tickets", function () {
+        it("Should increase player's ticket balance", async function () {
+            hardhatToken.transfer(addr1.address, 1000);
+            const requestedTickets = 10;
+            await hardhatToken.connect(addr1).buyLotteryTickets(hardhatLottery.address, requestedTickets);
+
+            const playerTickets = await hardhatLottery.connect(addr1).getTicketAmount();
+            const lotteryBalance =  await hardhatToken.balanceOf(hardhatLottery.address);
+            // The requested amount of tickets and the player's current ticket balance should match.
+            expect(playerTickets).to.equal(requestedTickets);
+            // The contract token balance should have been increased by the amount of requested tickets.
+            expect(lotteryBalance).to.equal(requestedTickets*ticketPrice);
+
+            const ticketsLeft = await hardhatLottery.ticketPool();
+            const expectedTicketsLeft = ticketSupply - requestedTickets;
+            // The ticket pool should have been decreased by the amount of requested tickets.
+            console.log("check");
+            expect(ticketsLeft).to.equal(expectedTicketsLeft);
+        });
+    });
+
 });

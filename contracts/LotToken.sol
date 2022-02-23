@@ -33,4 +33,19 @@ contract LotToken is ERC20 {
         return true;
     }
 
+    /**
+    * @notice Buy tickets of the target lottery.
+    * @param _lotteryAddress address of the lottery cotract
+    * @param _ticketAmount amount of tickets to buy
+    * @return true if transaction was successful
+    */
+    function buyLotteryTickets(address _lotteryAddress, uint256 _ticketAmount) external returns (bool) {
+        require(_ticketAmount > 0, "Can not transfer zero tokens");
+        EtherLottery lotteryContract = EtherLottery(_lotteryAddress);
+        uint priceInTokens = lotteryContract.ticketPrice() * _ticketAmount;
+        require(priceInTokens <= balanceOf(msg.sender), "Not enough tokens");
+        approve(_lotteryAddress, priceInTokens);
+        lotteryContract.creditTickets(msg.sender, _ticketAmount);
+        return true;
+    }
 }

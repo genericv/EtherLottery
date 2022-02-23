@@ -3,6 +3,7 @@
 pragma solidity >= 0.8.2 < 0.9.0;
 
 import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./EtherLottery.sol";
 
 contract LotToken is ERC20 {
     // Owner account address.

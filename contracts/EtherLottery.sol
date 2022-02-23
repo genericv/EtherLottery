@@ -129,31 +129,34 @@ contract EtherLottery {
     }
 
     /**
-    * @notice Buy lottery tickets.
-    * @dev purchased tokens number is equal to sent ether value
+    * @notice Credit tickets to a player at cost of appropriate token amount.
+    * @param _playerAddress address of a player that tickets will be credited to
+    * @param _ticketAmount amount of tickets to be credited
+    * @dev transfers specified amount of tickets from the pool to the player
+    * @dev transfers appropriate number of player's approved tokens to the lottery
     */
-    function buyTickets() external payable {
+    function creditTickets(address _playerAddress, uint _ticketAmount) external {
         // Revert if the lottery has already ended
         // or if the ticket buying period is over.
         if (ended || block.timestamp > endTime){
             revert LotteryAlreadyEnded();
         }
-        // Revert if player sent zero ether.
-        if (msg.value <= 0) {
-            revert NoEtherSent();
-        }
         // Revert if player sent more ether
         // than there are available tickets.
-        if (ticketPool < msg.value) {
+        if (ticketPool < _ticketAmount) {
             revert SentTooMuch(ticketPool);
         }
+        // Transfer the appropriate amount of tokens
+        // from sender to the lottery balance
+        LotToken tockenContract = LotToken(tokenContractAddress);
+        tockenContract.transferFrom(_playerAddress, address(this), _ticketAmount * ticketPrice);
         // Add new player to the list.
-        if (balances[msg.sender] == 0){
-            players.push(msg.sender);
+        if (balances[_playerAddress] == 0){
+            players.push(_playerAddress);
         }
         // Increase buyer's ticket balance.
-        balances[msg.sender] += msg.value;
-        ticketPool -= msg.value;
+        balances[_playerAddress] += _ticketAmount;
+        ticketPool -= _ticketAmount;
     }
 
     /**

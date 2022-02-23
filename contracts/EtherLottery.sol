@@ -60,13 +60,17 @@ contract EtherLottery {
 
     /** 
     * @notice Create new lottery with provided parameters.
+    * @param _tokenContractAddress associated token contract address
+    * @param _ticketPrice price of one ticket in associated tokens
     * @param _ticketSupply total ticket supply
     * @param _duration time period in seconds
     * @dev sets beneficiary to the current sender (deployer)
     * @dev set end time to the sum of the current time and the duration
     */
-    constructor(uint _ticketSupply, uint _duration) {
+    constructor(address _tokenContractAddress, uint _ticketPrice, uint _ticketSupply, uint _duration) {
         beneficiary = payable(msg.sender);
+        tokenContractAddress = _tokenContractAddress;
+        ticketPrice =_ticketPrice;
         ticketSupply = _ticketSupply;
         ticketPool = _ticketSupply;
         endTime = block.timestamp + _duration;

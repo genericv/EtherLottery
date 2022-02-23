@@ -179,8 +179,9 @@ contract EtherLottery {
         emit LotteryEnded(winner, playerReward);
 
         // Interaction
-        winner.transfer(playerReward);
-        beneficiary.transfer(beneficiaryReward);
+        LotToken tockenContract = LotToken(tokenContractAddress);
+        tockenContract.transfer(winner, playerReward * ticketPrice);
+        tockenContract.transfer(beneficiary, beneficiaryReward * ticketPrice);
     }
 
 }

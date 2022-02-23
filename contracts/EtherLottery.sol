@@ -2,6 +2,10 @@
 pragma solidity >= 0.8.2 < 0.9.0;
 contract EtherLottery {
 
+    // Associated token contract address.
+    // Used to handle ticket buying process.
+    address public tokenContractAddress;
+
     // Accounts that have bought tickets.
     address[] private players;
 
@@ -24,6 +28,9 @@ contract EtherLottery {
     // Initialy set to the total ticket supply.
     // Decreased by the number of sold tickets.
     uint public ticketPool;
+
+    // Price of one ticket in associated tokens.
+    uint public ticketPrice;
 
     // Time when the lottery ends.
     // Set by deployer.

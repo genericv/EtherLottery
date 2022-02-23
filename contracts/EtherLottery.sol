@@ -14,13 +14,13 @@ contract EtherLottery {
 
     // Receives 10% of the reward.
     // Set to the deployer's address.
-    address payable public beneficiary;
+    address public beneficiary;
 
     // Receives 90% of the reward.
     // Randomly selected from players at the end.
     // Player with more tickets has a higher chance
     // to be selected.
-    address payable winner;
+    address winner;
     
     // Total supply of tickets that can be sold
     // before the lottery ends.

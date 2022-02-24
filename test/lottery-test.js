@@ -4,10 +4,11 @@ const provider = waffle.provider;
 
 describe("Lottery contract", function () {
 
-    let Lottery;
+    let hardhatToken;
     let hardhatLottery;
     let beneficiary;
-    let ethTicketSupply;
+    let ticketPrice;
+    let ticketSupply;
     let duration;
     let deploymentTime;
     let addr1;
@@ -15,16 +16,23 @@ describe("Lottery contract", function () {
     let addrs;
 
     beforeEach(async function () {
-        ethTicketSupply = "1000";
-        duration = 3600;
+        Token = await ethers.getContractFactory("LotToken");
+        hardhatToken = await Token.deploy(BigInt(1e21));
         Lottery = await ethers.getContractFactory("EtherLottery");
+        ticketPrice = 10;
+        ticketSupply = 1000;
+        duration = 3600;
         [beneficiary, addr1, addr2, ...addrs] = await ethers.getSigners();
         hardhatLottery = await Lottery.deploy(
-            ethers.utils.parseEther(ethTicketSupply),
+            hardhatToken.address,
+            ticketPrice,
+            ticketSupply,
             duration);
         const blockNumBefore = await provider.getBlockNumber();
         const blockBefore = await provider.getBlock(blockNumBefore);
         deploymentTime = blockBefore.timestamp;
+        hardhatToken.transfer(addr1.address, ticketSupply * 2 * ticketPrice);
+        hardhatToken.transfer(addr2.address, ticketSupply * 2 * ticketPrice);
     });
 
     describe("Deployment", function () {
@@ -43,18 +51,19 @@ describe("Lottery contract", function () {
     });
 
     describe("Buying tickets", function () {
-        it("Should increase player's ticket balance by the amount of ether sent", async function () {
-            const requestedTickets = ethers.utils.parseEther("1");
-            await hardhatLottery.connect(addr1).buyTickets({value: requestedTickets});
+        it("Should increase player's ticket balance", async function () {
+            const requestedTickets = 10;
+            await hardhatToken.connect(addr1).buyLotteryTickets(hardhatLottery.address, requestedTickets);
+
             const playerTickets = await hardhatLottery.connect(addr1).getTicketAmount();
-            const lotteryEthBalance =  await provider.getBalance(hardhatLottery.address);
-            // The requested amount of tickets and the player's current ticket amount should match.
+            const lotteryBalance =  await hardhatToken.balanceOf(hardhatLottery.address);
+            // The requested amount of tickets and the player's current ticket balance should match.
             expect(playerTickets).to.equal(requestedTickets);
-            // The contract balance should have been increased by the amount of requested tickets.
-            expect(lotteryEthBalance).to.equal(requestedTickets);
+            // The contract token balance should have been increased by the amount of requested tickets.
+            expect(lotteryBalance).to.equal(requestedTickets*ticketPrice);
 
             const ticketsLeft = await hardhatLottery.ticketPool();
-            const expectedTicketsLeft = (ethers.utils.parseEther(ethTicketSupply) - requestedTickets) + "";
+            const expectedTicketsLeft = ticketSupply - requestedTickets;
             // The ticket pool should have been decreased by the amount of requested tickets.
             expect(ticketsLeft).to.equal(expectedTicketsLeft);
         });

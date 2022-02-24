@@ -12,7 +12,7 @@ describe("Token contract", function () {
     beforeEach(async function () {
         Token = await ethers.getContractFactory("LotToken");
         [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
-        hardhatToken = await Token.deploy();
+        hardhatToken = await Token.deploy(BigInt(1e21));
     });
 
     describe("Deployment", function () {

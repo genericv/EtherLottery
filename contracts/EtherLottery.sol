@@ -73,7 +73,7 @@ contract EtherLottery {
     * @return two reward values as a tuple: (forWinner, forBeneficiary)
     */
     function getRewards() public view returns(uint, uint){
-        uint totalReward = address(this).balance;
+        uint totalReward = (ticketSupply - ticketPool) * ticketPrice;
         uint forWinner = totalReward / 10 * 9;
         uint forBeneficiary = totalReward - forWinner;
         return (forWinner, forBeneficiary);
@@ -156,8 +156,8 @@ contract EtherLottery {
 
         // Interaction
         LotToken tockenContract = LotToken(tokenContractAddress);
-        tockenContract.transfer(winner, playerReward * ticketPrice);
-        tockenContract.transfer(beneficiary, beneficiaryReward * ticketPrice);
+        tockenContract.transfer(winner, playerReward);
+        tockenContract.transfer(beneficiary, beneficiaryReward);
     }
 
 }

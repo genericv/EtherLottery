@@ -50,17 +50,6 @@ contract EtherLottery {
     // Announces the winner and their reward.
     event LotteryEnded(address winner, uint amount);
 
-    /// The lottery has already ended.
-    error LotteryAlreadyEnded();
-    /// Specified amount is zero.
-    error NoEtherSent();
-    /// Only `availableAmount` tickets left.
-    error SentTooMuch(uint availableAmount);
-    /// The lottery has not ended yet.
-    error LotteryNotYetEnded();
-    /// The function endLottery has already been called.
-    error LotteryEndAlreadyCalled();
-
     /** 
     * @notice Create new lottery with provided parameters.
     * @param _tokenContractAddress associated token contract address
@@ -95,9 +84,7 @@ contract EtherLottery {
     * @return winner's address
     */
     function getWinner() external view returns(address){
-        if(!ended) {
-            revert LotteryNotYetEnded();
-        }
+        require(ended, "The lottery has not ended yet.");
         return winner;
     }
 
@@ -136,16 +123,9 @@ contract EtherLottery {
     * @dev transfers appropriate number of player's approved tokens to the lottery
     */
     function creditTickets(address _playerAddress, uint _ticketAmount) external {
-        // Revert if the lottery has already ended
-        // or if the ticket buying period is over.
-        if (ended || block.timestamp > endTime){
-            revert LotteryAlreadyEnded();
-        }
-        // Revert if player sent more ether
-        // than there are available tickets.
-        if (ticketPool < _ticketAmount) {
-            revert SentTooMuch(ticketPool);
-        }
+        require(!ended, "The lottery has already ended.");
+        require(block.timestamp <= endTime, "The ticket buying period has already ended.");
+        require(_ticketAmount <= ticketPool, "The requested number of tickets exceeds current available count.");
         // Transfer the appropriate amount of tokens
         // from sender to the lottery balance
         LotToken tockenContract = LotToken(tokenContractAddress);
@@ -165,12 +145,8 @@ contract EtherLottery {
     */
     function endLottery() external {
         // Conditions
-        if (ended){
-            revert LotteryEndAlreadyCalled();
-        }
-        if (ticketPool > 0 && block.timestamp < endTime){
-            revert LotteryNotYetEnded();
-        }
+        require(!ended, "The lottery ending has already been requested.");
+        require(ticketPool == 0 || block.timestamp >= endTime, "The lottery has not ended yet.");
 
         // Effects
         ended = true;

@@ -105,7 +105,14 @@ contract EtherLottery {
     * @dev stores winner's address in state variable
     */
     function determineWinner() internal{
-        uint winningNumber = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % ticketSupply + 1;
+        uint winningNumber = uint(
+            keccak256(
+                abi.encodePacked(
+                    block.timestamp,
+                    msg.sender
+                )
+            )
+        ) % (ticketSupply - ticketPool) + 1;
         for (uint i = 0; i < players.length; i++){
             if (balances[players[i]] >= winningNumber){
                 winner = payable(players[i]);

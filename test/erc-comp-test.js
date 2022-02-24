@@ -31,11 +31,12 @@ describe("ERC20 compatibility", function () {
         const blockNumBefore = await provider.getBlockNumber();
         const blockBefore = await provider.getBlock(blockNumBefore);
         deploymentTime = blockBefore.timestamp;
+        hardhatToken.transfer(addr1.address, ticketSupply * 2 * ticketPrice);
+        hardhatToken.transfer(addr2.address, ticketSupply * 2 * ticketPrice);
     });
 
     describe("Buying tickets", function () {
         it("Should increase player's ticket balance", async function () {
-            hardhatToken.transfer(addr1.address, 1000);
             const requestedTickets = 10;
             await hardhatToken.connect(addr1).buyLotteryTickets(hardhatLottery.address, requestedTickets);
 

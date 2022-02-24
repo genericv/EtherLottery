@@ -37,12 +37,23 @@ describe("Lottery contract", function () {
 
     describe("Deployment", function () {
         it("Should set the right beneficiary", async function () {
-        expect(await hardhatLottery.beneficiary()).to.equal(beneficiary.address);
+            expect(await hardhatLottery.beneficiary()).to.equal(beneficiary.address);
+        });
+
+        it("Should set the right end time", async function () {
+            expect(await hardhatLottery.tokenContractAddress()).to.equal(hardhatToken.address);
         });
 
         it("Should set the right ticket supply", async function () {
-            expect(await hardhatLottery.ticketSupply()).to.equal(
-                ethers.utils.parseEther(ethTicketSupply));
+            expect(await hardhatLottery.ticketSupply()).to.equal(ticketSupply);
+        });
+
+        it("Should set the right ticket price", async function () {
+            expect(await hardhatLottery.ticketPrice()).to.equal(ticketPrice);
+        });
+
+        it("Should set the right ticket price", async function () {
+            expect(await hardhatLottery.ticketPool()).to.equal(ticketSupply);
         });
 
         it("Should set the right end time", async function () {

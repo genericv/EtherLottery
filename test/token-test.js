@@ -52,6 +52,12 @@ describe("Token contract", function () {
         );
         });
 
+        it("Should fail if sender tries to send zero tokens", async function () {    
+        await expect(
+            hardhatToken.transfer(addr1.address, 0)
+        ).to.be.revertedWith("Can not transfer zero tokens");
+        });
+
         it("Should update balances after transfers", async function () {
         const initialOwnerBalance = await hardhatToken.balanceOf(owner.address);
 

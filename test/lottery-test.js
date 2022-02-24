@@ -80,53 +80,61 @@ describe("Lottery contract", function () {
         });
 
         it("Should update player's ticket balance if the player buys more tickets", async function () {
-            const requestedTickets = ethers.utils.parseEther("1");
-            await hardhatLottery.connect(addr1).buyTickets({value: requestedTickets});
+            const requestedTickets = 10;
+            await hardhatToken.connect(addr1).buyLotteryTickets(hardhatLottery.address, requestedTickets);
+
             const initialPlayerTickets = await hardhatLottery.connect(addr1).getTicketAmount();
             // The requested amount of tickets and the player's current ticket amount should match.
             expect(initialPlayerTickets).to.equal(requestedTickets);
 
-            await hardhatLottery.connect(addr1).buyTickets({value: requestedTickets});
+            await hardhatToken.connect(addr1).buyLotteryTickets(hardhatLottery.address, requestedTickets);
             const finalPlayerTickets = await hardhatLottery.connect(addr1).getTicketAmount();
-            const lotteryEthBalance =  await provider.getBalance(hardhatLottery.address);
+            const lotteryBalance =  await hardhatToken.balanceOf(hardhatLottery.address);
             // Player's current ticket amount should have been updated.
-            expect(finalPlayerTickets).to.equal(requestedTickets.mul(2));
+            expect(finalPlayerTickets).to.equal(requestedTickets * 2);
             // The contract balance should have been increased by the amount of requested tickets.
-            expect(lotteryEthBalance).to.equal(requestedTickets.mul(2));
+            expect(lotteryBalance).to.equal(requestedTickets * ticketPrice * 2);
 
             const ticketsLeft = await hardhatLottery.ticketPool();
-            const expectedTicketsLeft = (ethers.utils.parseEther(ethTicketSupply) - requestedTickets * 2) + "";
+            const expectedTicketsLeft = ticketSupply - requestedTickets * 2;
             // The ticket pool should have been decreased by the amount of requested tickets.
             expect(ticketsLeft).to.equal(expectedTicketsLeft);
         });
 
         it("Should fail if a player tries to buy zero tickets", async function () {
-            await expect(hardhatLottery.connect(addr1).buyTickets({value: ethers.utils.parseEther("0")}))
-            .to.be.revertedWith("NoEtherSent");
+            await expect(hardhatToken.connect(addr1).buyLotteryTickets(hardhatLottery.address, 0))
+            .to.be.revertedWith("Can not transfer zero tokens.");
         });
 
         it("Should fail  if a player tries to buy more tickets than currently available", async function () {
-            const exceedingAmount = ethers.utils.parseEther((+ethTicketSupply + 1) + "");
-            await expect(hardhatLottery.connect(addr1).buyTickets({value: exceedingAmount}))
-            .to.be.revertedWith(`SentTooMuch(${ethers.utils.parseEther(ethTicketSupply)})`);
+            const exceedingAmount = ticketSupply + 1;
+            await expect(hardhatToken.connect(addr1).buyLotteryTickets(hardhatLottery.address, exceedingAmount))
+            .to.be.revertedWith("The requested number of tickets exceeds current available count.");
         });
 
         it("Should fail if a player tries to buy tickets after the lottery has ended", async function () {
-            const halfOfTotalTicketAmount = ethers.utils.parseEther(Math.floor(+ethTicketSupply / 2) + "");
+            const halfOfTotalTicketAmount = ticketSupply / 2;
             //Two players buy all of the tickets (each gets a half of the total amount).
-            await hardhatLottery.connect(addr1).buyTickets({value: halfOfTotalTicketAmount});
-            await hardhatLottery.connect(addr2).buyTickets({value: halfOfTotalTicketAmount});
+            await hardhatToken.connect(addr1).buyLotteryTickets(hardhatLottery.address, halfOfTotalTicketAmount);
+            await hardhatToken.connect(addr2).buyLotteryTickets(hardhatLottery.address, halfOfTotalTicketAmount);
+            // The end of the lottery.
             await hardhatLottery.endLottery();
-            await expect(hardhatLottery.connect(addr1).buyTickets({value: ethers.utils.parseEther("1")}))
-            .to.be.revertedWith("LotteryAlreadyEnded");
+            await expect(hardhatToken.connect(addr1).buyLotteryTickets(hardhatLottery.address, 1))
+            .to.be.revertedWith("The lottery has already ended.");
         });
 
         it("Should fail if a player tries to buy tickets after the ticket buying period is over", async function () {
             //Fast forward to the end of the ticket buying period.
             await network.provider.send("evm_increaseTime", [duration + 1]);
-            await expect(hardhatLottery.connect(addr1).buyTickets({value: ethers.utils.parseEther("1")}))
-            .to.be.revertedWith("LotteryAlreadyEnded");
+            await expect(hardhatToken.connect(addr1).buyLotteryTickets(hardhatLottery.address, 1))
+            .to.be.revertedWith("The ticket buying period has already ended.");
         });
+
+        it("Should fail if a player doesn't have enough tokens for a purchase", async function () {
+            await expect(hardhatToken.connect(addrs[0]).buyLotteryTickets(hardhatLottery.address, 1))
+            .to.be.revertedWith("Not enough tokens.");
+        });
+
     });
 
     describe("Ending lottery", function () {
